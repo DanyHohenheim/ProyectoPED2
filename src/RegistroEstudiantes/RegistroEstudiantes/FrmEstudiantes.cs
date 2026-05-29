@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Data.Sqlite;
+using RegistroEstudiantes.Core.Datos;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -16,13 +18,17 @@ namespace RegistroEstudiantes
         private Button btnListarBeta;
         private Button btnLimpiar;
         private DataGridView dgv;
+        private readonly ContextoRegistroEstudiantes _contextoBaseDatos;
 
         // ABB (Árbol Binario de Búsqueda) por Carnet
-        private readonly ArbolBinarioBusquedaEstudiantes _abb = new ArbolBinarioBusquedaEstudiantes();
+        private ArbolBinarioBusquedaEstudiantes _abb = new ArbolBinarioBusquedaEstudiantes();
 
         public FrmEstudiantes()
         {
-            Text = "Estudiantes (Prototipo 30% - Beta / ABB)";
+            _contextoBaseDatos = new ContextoRegistroEstudiantes();
+            _contextoBaseDatos.Inicializar();
+
+            Text = "Estudiantes (Fase 2 - SQLite / ABB)";
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 520;
@@ -38,21 +44,14 @@ namespace RegistroEstudiantes
 
             Label lblCarrera = new Label { Text = "Carrera:", Left = 20, Top = 125, AutoSize = true };
             cmbCarrera = new ComboBox { Left = 120, Top = 120, Width = 250, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbCarrera.Items.AddRange(new object[]
-            {
-                "Ingeniería en Sistemas",
-                "Administración de Empresas",
-                "Técnico en Informática"
-            });
-            if (cmbCarrera.Items.Count > 0) cmbCarrera.SelectedIndex = 0;
 
-            btnGuardarBeta = new Button { Text = "Guardar (Beta)", Left = 420, Top = 15, Width = 160, Height = 35 };
+            btnGuardarBeta = new Button { Text = "Guardar", Left = 420, Top = 15, Width = 160, Height = 35 };
             btnGuardarBeta.Click += (_, __) => GuardarEnAbb();
 
-            btnBuscarBeta = new Button { Text = "Buscar (Beta)", Left = 420, Top = 55, Width = 160, Height = 35 };
+            btnBuscarBeta = new Button { Text = "Buscar", Left = 420, Top = 55, Width = 160, Height = 35 };
             btnBuscarBeta.Click += (_, __) => BuscarEnAbb();
 
-            btnListarBeta = new Button { Text = "Listar InOrden (Beta)", Left = 420, Top = 95, Width = 160, Height = 35 };
+            btnListarBeta = new Button { Text = "Listar InOrden", Left = 420, Top = 95, Width = 160, Height = 35 };
             btnListarBeta.Click += (_, __) => RefrescarTablaDesdeAbb();
 
             btnLimpiar = new Button { Text = "Limpiar", Left = 420, Top = 135, Width = 160, Height = 35 };
@@ -84,11 +83,8 @@ namespace RegistroEstudiantes
             Controls.Add(btnLimpiar);
             Controls.Add(dgv);
 
-            // Las pruebas pre cargadas
-            _abb.Insertar(new EstudianteBeta { Carnet = "LP123456", Nombres = "Juan", Apellidos = "López Pérez", Carrera = "Ingeniería en Sistemas", Activo = true });
-            _abb.Insertar(new EstudianteBeta { Carnet = "GL654321", Nombres = "Ana", Apellidos = "García López", Carrera = "Administración de Empresas", Activo = true });
-            _abb.Insertar(new EstudianteBeta { Carnet = "MR000001", Nombres = "Luis", Apellidos = "Martínez Reyes", Carrera = "Técnico en Informática", Activo = true });
-
+            CargarCarrerasDesdeBaseDatos();
+            CargarEstudiantesDesdeBaseDatos();
             RefrescarTablaDesdeAbb();
         }
 
@@ -97,7 +93,6 @@ namespace RegistroEstudiantes
             string apellidos = (txtApellidos.Text ?? "").Trim();
             string carnet = (txtCarnet.Text ?? "").Trim().ToUpperInvariant();
             string nombres = (txtNombres.Text ?? "").Trim();
-            string carrera = cmbCarrera.SelectedItem?.ToString() ?? "";
 
             if (string.IsNullOrWhiteSpace(apellidos))
             {
@@ -112,22 +107,36 @@ namespace RegistroEstudiantes
                 return;
             }
 
-            bool ok = _abb.Insertar(new EstudianteBeta
+            if (string.IsNullOrWhiteSpace(nombres))
             {
-                Carnet = carnet,
-                Nombres = nombres,
-                Apellidos = apellidos,
-                Carrera = carrera,
-                Activo = true
-            });
-
-            if (!ok)
-            {
-                MessageBox.Show("Ya existe un estudiante con ese Carnet (beta).", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Ingrese Nombres.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            MessageBox.Show("Guardado en ABB (beta).", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (cmbCarrera.SelectedItem is not CarreraComboItem carreraSeleccionada)
+            {
+                MessageBox.Show("Seleccione una carrera.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (_abb.Buscar(carnet) != null)
+            {
+                MessageBox.Show("Ya existe un estudiante con ese Carnet.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                GuardarEstudianteEnBaseDatos(carnet, nombres, apellidos, carreraSeleccionada);
+                CargarEstudiantesDesdeBaseDatos();
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                MessageBox.Show("No se pudo guardar. Verifique que el carné no esté duplicado.", "Base de datos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            MessageBox.Show("Estudiante guardado en SQLite y cargado en el ABB.", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
             RefrescarTablaDesdeAbb();
             Limpiar();
         }
@@ -144,15 +153,15 @@ namespace RegistroEstudiantes
             var e = _abb.Buscar(carnet);
             if (e == null)
             {
-                MessageBox.Show("No encontrado en ABB (beta).", "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No encontrado.", "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             txtNombres.Text = e.Nombres;
             txtApellidos.Text = e.Apellidos;
-            cmbCarrera.SelectedItem = e.Carrera;
+            SeleccionarCarrera(e.IdCarrera);
 
-            MessageBox.Show("Encontrado en ABB (beta).", "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Encontrado en ABB cargado desde SQLite.", "Resultado", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void RefrescarTablaDesdeAbb()
@@ -170,6 +179,118 @@ namespace RegistroEstudiantes
             txtApellidos.Clear();
             if (cmbCarrera.Items.Count > 0) cmbCarrera.SelectedIndex = 0;
             txtCarnet.Focus();
+        }
+
+        private void CargarCarrerasDesdeBaseDatos()
+        {
+            cmbCarrera.Items.Clear();
+
+            using var conexion = _contextoBaseDatos.CrearConexionAbierta();
+            using var comando = conexion.CreateCommand();
+            comando.CommandText = @"
+SELECT IdCarrera, NombreCarrera
+FROM Carreras
+WHERE Activa = 1
+ORDER BY NombreCarrera;";
+
+            using var lector = comando.ExecuteReader();
+            while (lector.Read())
+            {
+                cmbCarrera.Items.Add(new CarreraComboItem(
+                    lector.GetInt32(0),
+                    lector.GetString(1)));
+            }
+
+            if (cmbCarrera.Items.Count > 0) cmbCarrera.SelectedIndex = 0;
+        }
+
+        private void CargarEstudiantesDesdeBaseDatos()
+        {
+            _abb = new ArbolBinarioBusquedaEstudiantes();
+
+            using var conexion = _contextoBaseDatos.CrearConexionAbierta();
+            using var comando = conexion.CreateCommand();
+            comando.CommandText = @"
+SELECT e.IdEstudiante, e.Carnet, e.Nombres, e.Apellidos, e.IdCarrera, c.NombreCarrera, e.Activo
+FROM Estudiantes e
+INNER JOIN Carreras c ON c.IdCarrera = e.IdCarrera
+WHERE e.Activo = 1
+ORDER BY e.Carnet;";
+
+            using var lector = comando.ExecuteReader();
+            while (lector.Read())
+            {
+                _abb.Insertar(new EstudianteBeta
+                {
+                    IdEstudiante = lector.GetInt32(0),
+                    Carnet = lector.GetString(1),
+                    Nombres = lector.GetString(2),
+                    Apellidos = lector.GetString(3),
+                    IdCarrera = lector.GetInt32(4),
+                    Carrera = lector.GetString(5),
+                    Activo = lector.GetInt32(6) == 1
+                });
+            }
+        }
+
+        private void GuardarEstudianteEnBaseDatos(string carnet, string nombres, string apellidos, CarreraComboItem carrera)
+        {
+            using var conexion = _contextoBaseDatos.CrearConexionAbierta();
+            using var transaccion = conexion.BeginTransaction();
+
+            using var insertar = conexion.CreateCommand();
+            insertar.Transaction = transaccion;
+            insertar.CommandText = @"
+INSERT INTO Estudiantes (Carnet, Nombres, Apellidos, IdCarrera)
+VALUES ($carnet, $nombres, $apellidos, $idCarrera);";
+            insertar.Parameters.AddWithValue("$carnet", carnet);
+            insertar.Parameters.AddWithValue("$nombres", nombres);
+            insertar.Parameters.AddWithValue("$apellidos", apellidos);
+            insertar.Parameters.AddWithValue("$idCarrera", carrera.IdCarrera);
+            insertar.ExecuteNonQuery();
+
+            using var obtenerId = conexion.CreateCommand();
+            obtenerId.Transaction = transaccion;
+            obtenerId.CommandText = "SELECT last_insert_rowid();";
+            long idEstudiante = (long)(obtenerId.ExecuteScalar() ?? 0L);
+
+            using var movimiento = conexion.CreateCommand();
+            movimiento.Transaction = transaccion;
+            movimiento.CommandText = @"
+INSERT INTO MovimientosEstudiante (IdEstudiante, IdUsuario, TipoMovimiento, Descripcion)
+VALUES ($idEstudiante, $idUsuario, 'Alta', $descripcion);";
+            movimiento.Parameters.AddWithValue("$idEstudiante", idEstudiante);
+            movimiento.Parameters.AddWithValue("$idUsuario", ObtenerIdUsuarioAuditoria(conexion, transaccion));
+            movimiento.Parameters.AddWithValue("$descripcion", $"Registro inicial del estudiante {carnet} desde WinForms.");
+            movimiento.ExecuteNonQuery();
+
+            transaccion.Commit();
+        }
+
+        private static int ObtenerIdUsuarioAuditoria(SqliteConnection conexion, SqliteTransaction transaccion)
+        {
+            using var comando = conexion.CreateCommand();
+            comando.Transaction = transaccion;
+            comando.CommandText = @"
+SELECT IdUsuario
+FROM Usuarios
+WHERE NombreUsuario = 'admin'
+LIMIT 1;";
+
+            object? valor = comando.ExecuteScalar();
+            return valor is null ? 1 : Convert.ToInt32(valor);
+        }
+
+        private void SeleccionarCarrera(int idCarrera)
+        {
+            for (int i = 0; i < cmbCarrera.Items.Count; i++)
+            {
+                if (cmbCarrera.Items[i] is CarreraComboItem item && item.IdCarrera == idCarrera)
+                {
+                    cmbCarrera.SelectedIndex = i;
+                    return;
+                }
+            }
         }
 
         private static readonly Regex RxCarnet = new Regex(@"^[A-Z]{2}\d{6}$", RegexOptions.Compiled);
@@ -227,11 +348,28 @@ namespace RegistroEstudiantes
     // =========================
     public sealed class EstudianteBeta
     {
+        public int IdEstudiante { get; set; }
         public string Carnet { get; set; } = "";
         public string Nombres { get; set; } = "";
         public string Apellidos { get; set; } = "";
+        public int IdCarrera { get; set; }
         public string Carrera { get; set; } = "";
         public bool Activo { get; set; }
+    }
+
+    public sealed class CarreraComboItem
+    {
+        public CarreraComboItem(int idCarrera, string nombreCarrera)
+        {
+            IdCarrera = idCarrera;
+            NombreCarrera = nombreCarrera;
+        }
+
+        public int IdCarrera { get; }
+
+        public string NombreCarrera { get; }
+
+        public override string ToString() => NombreCarrera;
     }
 
     // =========================
