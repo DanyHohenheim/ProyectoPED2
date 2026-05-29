@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RegistroEstudiantes.Core/RegistroEstudiantes.Core.csproj" />
+    <Project Path="src/RegistroEstudiantes/RegistroEstudiantes/RegistroEstudiantes.csproj" />
+  </Folder>
+</Solution>
