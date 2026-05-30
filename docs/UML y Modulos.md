@@ -1,6 +1,4 @@
-# 📚 Sistema de Registro de Estudiantes — Fase 2
-
-[![Logo UDB](UDB_horizontal.png)](UDB_horizontal.png)
+# 📚 UML, Graficos y Modulos.
 
 ---
 
