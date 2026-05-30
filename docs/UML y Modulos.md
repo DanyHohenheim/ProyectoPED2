@@ -2,22 +2,6 @@
 
 [![Logo UDB](UDB_horizontal.png)](UDB_horizontal.png)
 
-**PROGRAMACIÓN CON ESTRUCTURA DE DATOS — PED941**
-**Docente:** Ing. Carmen Cecilia Morales
-**Universidad Don Bosco — Ciudadela Don Bosco, 2026**
-
----
-
-## Integrantes
-
-| Apellidos | Nombres | Carné |
-|---|---|---|
-| Carcamo Lopez | Daniel Alexander | CL243033 |
-| López de Servando | Marlene Noemy | LQ221481 |
-| Mejía Baires | Melani Fernanda | MB242795 |
-| Merino Alfaro | José Rodrigo | MA251211 |
-| Rivera Escobar | Leslie Alejandra | RE251913 |
-
 ---
 
 ## Índice
@@ -461,5 +445,3 @@ CREATE INDEX idx_movimiento_tipo    ON MovimientosEstudiante(TipoMovimiento);
 | Git / GitHub | — | Control de versiones |
 
 ---
-
-> **Nota:** Los diagramas Mermaid se renderizan automáticamente en GitHub. Para visualizarlos localmente se puede usar la extensión *Markdown Preview Mermaid Support* en VS Code.
