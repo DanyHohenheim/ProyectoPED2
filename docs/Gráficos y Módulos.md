@@ -8,9 +8,8 @@
 2. [Descripción de módulos y funcionalidades](#2-descripción-de-módulos-y-funcionalidades)
 3. [Diagrama UML de clases](#3-diagrama-uml-de-clases)
 4. [Diagrama de flujo de procesos principales](#4-diagrama-de-flujo-de-procesos-principales)
-5. [Diagrama modular por capas](#5-diagrama-modular-por-capas)
-6. [Base de datos y reglas de integridad](#6-base-de-datos-y-reglas-de-integridad)
-7. [Tecnologías utilizadas](#7-tecnologías-utilizadas)
+5. [Base de datos y reglas de integridad](#6-base-de-datos-y-reglas-de-integridad)
+6. [Tecnologías utilizadas](#7-tecnologías-utilizadas)
 
 ---
 
@@ -303,7 +302,7 @@ flowchart TD
 
 ---
 
-## 6. Base de datos y reglas de integridad
+## 5. Base de datos y reglas de integridad
 
 ### Esquema relacional
 
@@ -370,7 +369,7 @@ CREATE INDEX idx_movimiento_tipo    ON MovimientosEstudiante(TipoMovimiento);
 
 ---
 
-## 7. Tecnologías utilizadas
+## 6. Tecnologías utilizadas
 
 | Tecnología | Versión | Uso |
 |---|---|---|
