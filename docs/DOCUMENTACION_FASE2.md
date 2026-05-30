@@ -1,34 +1,6 @@
-# 📚 Sistema de Registro de Estudiantes — Fase 2
+# 📚 Diagrama UML y descripcion de los modulos
 
 [![Logo UDB](UDB_horizontal.png)](UDB_horizontal.png)
-
-**PROGRAMACIÓN CON ESTRUCTURA DE DATOS — PED941**
-**Docente:** Ing. Carmen Cecilia Morales
-**Universidad Don Bosco — Ciudadela Don Bosco, 2026**
-
----
-
-## Integrantes
-
-| Apellidos | Nombres | Carné |
-|---|---|---|
-| Carcamo Lopez | Daniel Alexander | CL243033 |
-| López de Servando | Marlene Noemy | LQ221481 |
-| Mejía Baires | Melani Fernanda | MB242795 |
-| Merino Alfaro | José Rodrigo | MA251211 |
-| Rivera Escobar | Leslie Alejandra | RE251913 |
-
----
-
-## Índice
-
-1. [Descripción general de la Fase 2](#1-descripción-general-de-la-fase-2)
-2. [Descripción de módulos y funcionalidades](#2-descripción-de-módulos-y-funcionalidades)
-3. [Diagrama UML de clases](#3-diagrama-uml-de-clases)
-4. [Diagrama de flujo de procesos principales](#4-diagrama-de-flujo-de-procesos-principales)
-5. [Diagrama modular por capas](#5-diagrama-modular-por-capas)
-6. [Base de datos y reglas de integridad](#6-base-de-datos-y-reglas-de-integridad)
-7. [Tecnologías utilizadas](#7-tecnologías-utilizadas)
 
 ---
 
@@ -321,16 +293,7 @@ flowchart TD
 
 ---
 
-## 5. Diagrama modular por capas
 
-```mermaid
-graph TB
-    subgraph PRESENTACION["🖥️  Capa de presentación — Windows Forms"]
-        FL[FormLogin\nAutenticación y roles]
-        FP[FormPrincipal\nCRUD de estudiantes]
-        FM[FormMovimientos\nHistorial de auditoría]
-        FC[FormCarreras\nCatálogo de carreras]
-    end
 
     subgraph LOGICA["🌳  Capa de lógica de negocio — BST + Reglas"]
         BST[ArbolBST\nInsertar · Buscar · Inorden]
