@@ -193,20 +193,54 @@ Registro de un estudiante:
 
 ### 4.2 Estructuras de datos seleccionadas para resolver la situación problemática y su aplicación.
 
-| Rol | Descripción | Permisos |
-|:----|:------------|:---------|
-| **Administrador** | Control total del sistema. | Gestión de usuarios, carreras y estudiantes. Acceso completo al historial de movimientos. |
-| **Operador** | Usuario de operación diaria. | Altas, bajas, actualizaciones y consultas de estudiantes. |
+**Árbol Binario de Búsqueda (BST):**
 
-### 4.3 Funcionalidades Principales
+La estructura principal utilizada para el manejo de estudiantes en un Árbol Binario de Búsqueda (BST), organizado utilizando el carnet como clav principal.
 
-1. **Alta de estudiantes** — Registro de nuevos estudiantes con carné único y carrera asignada.
-2. **Baja de estudiantes** — Desactivación lógica del registro (no se elimina físicamente), con trazabilidad del movimiento.
-3. **Consulta y listado ordenado** — Búsqueda por carné o ID. Listado general ordenado automáticamente mediante recorrido inorden del ABB.
-4. **Actualización de datos** — Modificación de información personal con registro del cambio.
-5. **Gestión de carreras** — Administración del catálogo de carreras disponibles para asignación.
-6. **Auditoría de movimientos** — Registro automático de cada Alta, Actualización y Baja con fecha, usuario responsable y descripción.
+Se seleccionó esta estructura porque permite:
 
----
+- Inserciones eficientes.
+- Búsquedas rápidas por carnet.
+- Recorridos ordenados automáticamente.
+- Aplicación práctica de los conceptos estudiados en la asignatura.
 
-## 5. Estructura del Repositorio
+<img width="365" height="103" alt="image" src="https://github.com/user-attachments/assets/6212012a-af4d-43c9-95ce-284176432f84" />
+
+Inserción en el árbol:
+
+<img width="309" height="83" alt="image" src="https://github.com/user-attachments/assets/b769f271-6cd7-446e-bbcb-a6eea3785316" />
+
+Búsqueda por carnet:
+
+<img width="343" height="80" alt="image" src="https://github.com/user-attachments/assets/5d261a86-6d87-4107-9afd-8c1a0d45f481" />
+
+Recorrido ordenado:
+
+<img width="291" height="125" alt="image" src="https://github.com/user-attachments/assets/335d607e-1b6a-40e9-a6c7-8ff1f78b3858" />
+
+**Listas dinámicas:**
+
+Se utilizan objetos List para almacenar temporalmente los registros recuperados desde la base de datos.
+
+Estas listas permiten:
+
+- Tranferir datos desde SQLite.
+- Cargar información al BST.
+- Mostrar registros en la interfaz gráfica.
+
+**Base de Datos Relacional SQLite:**
+
+La principal mejora respecto a la fase 1 es la incorporación de una base de dattos relacional.
+
+**Tablas implementadas:**
+
+**- Estudiantes:** Alamcena la información académica y personal.
+**- Carreras:** Contiene el catálogo de carreras disponibles.
+**- Usuarios:** Administra credenciales y roles.
+**- MovimientosEstudiante:** Registra todas las operaciones realizadas sobre estudiantes.
+
+**Indíces implementados:**
+
+Para optimizar consultas se crearon los siguientes índices:
+
+<img width="639" height="65" alt="image" src="https://github.com/user-attachments/assets/1828e6de-2968-4ccc-a6cd-5ec4493ef9b3" />
