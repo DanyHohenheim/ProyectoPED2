@@ -1,4 +1,4 @@
-# 📚 UML, Graficos y Modulos.
+# 📚 UML y Modulos.
 
 ---
 
