@@ -123,19 +123,75 @@ descripción del cambio realizado, lo que permite auditar cualquier operación e
 
 ---
 
-## 4. Definición del Sistema
+## 4. Lógica General del Sistema.
 
-### 4.1 Nombre del Sistema
+### 4.1 Situación problemática elegida.
 
 > **Sistema de Registro de Estudiantes**
 
-Aplicación de escritorio desarrollada en **C#** que gestiona el registro integral
-de estudiantes universitarios. Utiliza un **Árbol Binario de Búsqueda** como
-estructura de datos central para mantener los registros ordenados por carné
-en todo momento, permitiendo búsquedas eficientes y listados ordenados mediante
-recorrido inorden.
+En la fase 2, se amplió significativamente la funcionalidad del sistema de registro de estudiantes mediante la integración de una base de datos SQLite, permitiendo almacenar la información de manera permanente y garantizar la integridad de los datos.
 
-### 4.2 Usuarios
+El flujo general del sistema es el siguiente:
+
+1. El usuario inicia sesión utilizando sus credenciales.
+2. El sistema valida la existencia del usuario y su rol.
+3. El usuario puede registrar, mmodificar, consultar o dar de baja estudiantes.
+4. Los datos son almacenados en la base de datos SQLite.
+5. Cada operación realizada sobre un estudiante genera automáticamente un movimiento de auditoría.
+6. Los registros son recuperados desde la base de datos y cargados en un Árbol Binario de Búsqueda (BTS) para optimizar consultas y ordenamiento por carnet.
+7. La información se presenta en la interfaz gráfica para su administración.
+
+Durante la fase 2, se realizaron las siguientes mejoras:
+
+- Incorporación de persistencia de datos mediante SQLite.
+- Implementación de repositorios para acceso de datos.
+- Creación de tablas relacionadas mediante claves foráneas.
+- Registro histórico de movimientos realizados sobre estudiantes.
+- Manejo de usuarios y roles.
+- Inclusión de índices para acelerar búsquedas.
+- Baja lógica de estudiantes sin eliminación física.
+- Integración del BST con la información almacenada en la base de datos.
+
+**Reglas del negocio implementadas:**
+
+**- Carnet Único:** Cada estudiante debe poseer un carnet único dentro del sistema.
+Esta restricción se implementa mediante una restricción UNIQUE en la base de datos.
+
+<img width="446" height="292" alt="image" src="https://github.com/user-attachments/assets/80c3334d-f53b-428d-98f8-d815194d6bf9" />
+
+**- Campos obligatorios:** Para registrar un estudiante es obligatorio ingresar:
+
+- Carnet.
+- Nombres.
+- Apellidos.
+
+Implementación:
+
+<img width="570" height="168" alt="image" src="https://github.com/user-attachments/assets/e3a8ebeb-f5ba-4927-ac21-6de2e3af36fa" />
+
+**- Asociación obigatoria a una carrera:** Todo estudiante debe estar vinculado a una carrera existente mediante una clave foránea.
+
+<img width="436" height="47" alt="image" src="https://github.com/user-attachments/assets/7fea4bfd-59c0-48fc-8d72-c733c1677ca0" />
+
+**- Control de Estado del Estudiante:** Los estudiantes no se eliminan físicamente del sistema. Se utiliza el campo Activo para controlar si un registro está disponible o dado de baja.
+
+**- Auditoría de Operaciones:** Cada acción realizada sobre un estudiante genera auomáticamente un movimiento almacenado en la tabla MovimientosEstudiante.
+
+Los tipos de movimientos permitidos son:
+
+- Alta.
+- Actualización.
+- Baja.
+
+<img width="603" height="21" alt="image" src="https://github.com/user-attachments/assets/ed063dd4-cd19-433d-bd58-0fa3bfce2a73" />
+
+**- Fragmento de código relevante:** 
+
+Registro de un estudiante:
+
+<img width="346" height="207" alt="image" src="https://github.com/user-attachments/assets/010f0dc1-7706-4659-a09b-3e8164eb3b78" />
+
+### 4.2 Estructuras de datos seleccionadas para resolver la situación problemática y su aplicación.
 
 | Rol | Descripción | Permisos |
 |:----|:------------|:---------|
