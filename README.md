@@ -6,7 +6,7 @@
 
 **PROGRAMACIÓN CON ESTRUCTURA DE DATOS — PED941**  
 **Docente: Ing. Carmen Cecilia Morales**  
-**PROYECTO FASE 1**
+**PROYECTO FASE 2**
 
 </div>
 
@@ -65,7 +65,7 @@ momento. El recorrido **inorden** del árbol produce automáticamente un listado
 ascendente sin necesidad de ordenar los datos manualmente, lo que representa una
 ventaja significativa en rendimiento y claridad del código.
 
-### ¿Qué incluye la Fase 1?
+### ¿Qué incluye la Fase 2?
 
 - Definición completa del sistema y sus usuarios.
 - Diseño del esquema de base de datos relacional (SQLite).
