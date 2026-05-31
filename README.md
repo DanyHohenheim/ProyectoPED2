@@ -22,7 +22,7 @@
 | <img src="José%20Rodrigo%20Merino%20Alfaro%20MA251211.jpeg" width="80"> | Merino Alfaro | José Rodrigo | MA251211 |
 | <img src="Leslie%20Alejandra%20Rivera%20Escobar%20RE251913.jpeg" width="80"> | Rivera Escobar | Leslie Alejandra | RE251913 |
 
-**Universidad Don Bosco — Ciudadela Don Bosco, 14 de abril de 2026.**
+**Universidad Don Bosco — Ciudadela Don Bosco, 30 de mayo de 2026.**
 
 ---
 
